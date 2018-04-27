@@ -22,12 +22,12 @@
                 android:layout_height="match_parent" />
 
             <Button
-                android:layout_margin="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true" />
+                android:layout_alignParentTop="true"
+                android:layout_margin="10dp" />
         </RelativeLayout>
 
         <SeekBar
@@ -51,6 +51,7 @@
             android:layout_height="wrap_content">
 
             <TextView
+                android:textSize="11sp"
                 android:id="@+id/tv_passed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -61,6 +62,7 @@
                 android:text="sdfsdfsdfsdfsdfsd" />
 
             <TextView
+                android:textSize="11sp"
                 android:id="@+id/tv_remaining"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -72,36 +74,63 @@
 
         </RelativeLayout>
 
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/tv_song_title_play"
+            <ImageButton
+                android:id="@+id/image_shuffle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="dsfsfsfsdf"
-                android:textSize="20sp" />
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight=""
+                android:background="@drawable/ic_shuffle" />
 
-            <TextView
-                android:id="@+id/tv_song_singer_play"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="sdfsdfsdfs"
-                android:textSize="14sp" />
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
 
-            <TextView
-                android:text="sfsdfsd"
-                android:id="@+id/tv_song_album_play"
-                android:textSize="14sp"
+                <TextView
+                    android:id="@+id/tv_song_title_play"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:text="dsfsfsfsdf"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/tv_song_singer_play"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="sdfsdfsdfs"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tv_song_album_play"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="sfsdfsd"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/image_repeat"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/ic_repeat" />
 
         </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -109,43 +138,25 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/btn_shuffle"
+            <ImageButton
+                android:id="@+id/image_previous"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="20dp"
-                android:layout_weight="1"
-                android:background="@drawable/ic_shuffle" />
+                android:background="@drawable/icon_pre_48" />
 
-            <Button
-                android:id="@+id/btn_previous"
+            <ImageButton
+                android:id="@+id/image_play"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@android:drawable/ic_media_previous" />
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
+                android:background="@drawable/icon_play_64" />
 
-            <Button
-                android:id="@+id/btn_play"
+            <ImageButton
+                android:id="@+id/image_next"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@android:drawable/ic_media_play" />
-
-            <Button
-                android:id="@+id/btn_next"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@android:drawable/ic_media_next" />
-
-            <Button
-                android:id="@+id/btn_repeat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="20dp"
-                android:layout_weight="1"
-                android:background="@drawable/ic_repeat" />
-
+                android:background="@drawable/icon_next_48" />
 
         </LinearLayout>
 

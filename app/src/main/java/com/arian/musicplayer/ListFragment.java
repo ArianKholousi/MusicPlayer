@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -25,6 +26,7 @@ import java.util.List;
  */
 public class ListFragment extends Fragment {
 
+    private static final String ARGS_SONGS_LIST = "args_songs_list";
     private RecyclerView recyclerView;
     private SongAdapter songAdapter;
     private List<Song> songList;
@@ -34,11 +36,11 @@ public class ListFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static ListFragment newInstance() {
+    public static ListFragment newInstance(List<Song> songs) {
 
         Bundle args = new Bundle();
-
         ListFragment fragment = new ListFragment();
+        args.putParcelableArrayList(ARGS_SONGS_LIST, (ArrayList<? extends Parcelable>) songs);
         fragment.setArguments(args);
         return fragment;
     }
@@ -46,10 +48,7 @@ public class ListFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        songList = new ArrayList<>();
-        getSongList();
-
+        songList = getArguments().getParcelableArrayList(ARGS_SONGS_LIST);
 
     }
 
@@ -63,34 +62,34 @@ public class ListFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         updateRecyclerView();
 
-
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateRecyclerView();
+    }
 
     private class SongHolder extends RecyclerView.ViewHolder {
 
         private ImageView imageView;
         private TextView tvTitle;
-        private TextView tvSinger;
+        private TextView tvArtist;
         private Song song;
 
         public SongHolder(View itemView) {
             super(itemView);
             imageView = (ImageView) itemView.findViewById(R.id.image_song_list);
             tvTitle = (TextView) itemView.findViewById(R.id.tv_song_title_list);
-            tvSinger = (TextView) itemView.findViewById(R.id.tv_song_singer_list);
-
+            tvArtist = (TextView) itemView.findViewById(R.id.tv_song_singer_list);
         }
 
         public void bindSong(Song song){
             this.song = song;
-
-
+            tvTitle.setText(song.getTitle());
+            tvArtist.setText(song.getArtist());
         }
-
-
-
     }
 
 
@@ -128,42 +127,12 @@ public class ListFragment extends Fragment {
     public void updateRecyclerView(){
 
         if (songAdapter == null){
-            recyclerView.setAdapter(new SongAdapter(songList));
+            songAdapter = new SongAdapter(songList);
+            recyclerView.setAdapter(songAdapter);
         }else {
             songAdapter.setSongs(songList);
             songAdapter.notifyDataSetChanged();
         }
-
-    }
-
-
-    public void getSongList(){
-
-        ContentResolver musicResolver = getActivity().getContentResolver();
-        Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
-        String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
-        Cursor musicCursor = musicResolver.query(musicUri,null,selection,null,sortOrder);
-
-
-        if (musicCursor != null && musicCursor.getCount() >0){
-
-            try {
-                while (musicCursor.moveToNext()){
-                    String data = getString(musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA));
-                    String title = getString(musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
-                    String artist = getString(musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-                    String album = getString(musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-
-                    songList.add(new Song(data,title,artist,album));
-                }
-            } finally {
-                musicCursor.close();
-            }
-        }
-
-
-
 
     }
 
