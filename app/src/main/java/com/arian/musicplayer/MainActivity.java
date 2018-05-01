@@ -18,9 +18,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.yanzhenjie.permission.Action;
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.Permission;
+//import com.yanzhenjie.permission.Action;
+//import com.yanzhenjie.permission.AndPermission;
+//import com.yanzhenjie.permission.Permission;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private List<Song> songList;
 
+    public static Uri currentSongPath;
+
     private MediaBrowserCompat mediaBrowser;
     private MediaControllerCompat mediaController;
 
@@ -48,7 +50,8 @@ public class MainActivity extends AppCompatActivity {
                 mediaController = new MediaControllerCompat(MainActivity.this, mediaBrowser.getSessionToken());
                 mediaController.registerCallback(mediaControllerCallback);
                 MediaControllerCompat.setMediaController(MainActivity.this, mediaController);
-                MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().playFromMediaId(String.valueOf(R.raw.b), null);
+//                if(currentSongPath != null)
+//                    MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().playFromUri(currentSongPath,null);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -94,17 +97,23 @@ public class MainActivity extends AppCompatActivity {
         } else try {
             {
                 int idColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media._ID);
+                int dataColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
                 int titleColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
                 int artistColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
                 int albumColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+                int albumIDColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
+                int durationColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
 
                 do {
                     long id = musicCursor.getLong(idColumn);
+                    String data = musicCursor.getString(dataColumn);
                     String title = musicCursor.getString(titleColumn);
                     String artist = musicCursor.getString(artistColumn);
                     String album = musicCursor.getString(albumColumn);
+                    long albumID = musicCursor.getLong(albumIDColumn);
+                    long duration = musicCursor.getLong(durationColumn);
 
-                    songList.add(new Song(id,title,artist,album));
+                    songList.add(new Song(id,data,title,artist,album,albumID,duration));
 
                 } while (musicCursor.moveToNext());
             }
@@ -120,19 +129,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-        AndPermission.with(this).permission(Permission.READ_EXTERNAL_STORAGE)
-                .onGranted(new Action() {
-                    @Override
-                    public void onAction(List<String> permissions) {
-                        getSongList();
-                        Log.d("mytag", String.valueOf(songList.size()));
-                    }
-                }).onDenied(new Action() {
-            @Override
-            public void onAction(List<String> permissions) {
-
-            }
-        }).start();
+//        AndPermission.with(this).permission(Permission.READ_EXTERNAL_STORAGE)
+//                .onGranted(new Action() {
+//                    @Override
+//                    public void onAction(List<String> permissions) {
+//                        getSongList();
+//                        Log.d("mytag", String.valueOf(songList.size()));
+//                    }
+//                }).onDenied(new Action() {
+//            @Override
+//            public void onAction(List<String> permissions) {
+//
+//            }
+//        }).start();
 
         getSongList();
         Log.d("mytag", String.valueOf(songList.size()));

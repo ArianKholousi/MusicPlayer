@@ -7,24 +7,34 @@ import android.os.Parcelable;
  * Created by Payami on 04/24/2018.
  */
 
-public class Song implements Parcelable{
+public class Song  implements Parcelable {
     private long id;
+    private String data;
     private String title;
     private String artist;
     private String album;
+    private long albumID;
+    private long duration;
 
-    public Song(long id, String title, String artist, String album) {
-        this.id=  id;
+
+    public Song(long id, String data, String title, String artist, String album, long albumID, long duration) {
+        this.id = id;
+        this.data = data;
         this.title = title;
         this.artist = artist;
         this.album = album;
+        this.albumID = albumID;
+        this.duration = duration;
     }
 
     protected Song(Parcel in) {
         id = in.readLong();
+        data = in.readString();
         title = in.readString();
         artist = in.readString();
         album = in.readString();
+        albumID = in.readLong();
+        duration = in.readLong();
     }
 
     public static final Creator<Song> CREATOR = new Creator<Song>() {
@@ -43,6 +53,10 @@ public class Song implements Parcelable{
         return id;
     }
 
+    public String getData() {
+        return data;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -55,6 +69,14 @@ public class Song implements Parcelable{
         return album;
     }
 
+    public long getAlbumID() {
+        return albumID;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -63,8 +85,11 @@ public class Song implements Parcelable{
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(id);
+        dest.writeString(data);
         dest.writeString(title);
         dest.writeString(artist);
         dest.writeString(album);
+        dest.writeLong(albumID);
+        dest.writeLong(duration);
     }
 }

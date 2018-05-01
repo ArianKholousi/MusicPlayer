@@ -7,6 +7,7 @@ import android.content.res.AssetFileDescriptor;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.RemoteException;
@@ -17,7 +18,6 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaButtonReceiver;
-import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.NotificationCompat;
@@ -32,10 +32,8 @@ import java.util.List;
 
 public class MediaPlaybackService extends MediaBrowserServiceCompat implements AudioManager.OnAudioFocusChangeListener, MediaPlayer.OnCompletionListener {
 
-
     private MediaPlayer mediaPlayer;
     private MediaSessionCompat mediaSession;
-//    private PlaybackStateCompat.Builder stateBuilder;
 
     private MediaSessionCompat.Callback mediaSessionCallback = new MediaSessionCompat.Callback() {
 
@@ -52,37 +50,55 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements A
             mediaPlayer.start();
         }
 
+        @Override
+        public void onPlayFromUri(Uri uri, Bundle extras) {
+            super.onPlayFromUri(uri, extras);
+
+            try {
+                mediaPlayer.setDataSource(uri.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            initMediaSessionMetadata();
+            mediaPlayer.prepareAsync();
+
+        }
+
+
 
         @Override
         public void onPlayFromMediaId(String mediaId, Bundle extras) {
             super.onPlayFromMediaId(mediaId, extras);
-            try {
-                AssetFileDescriptor afd = getResources().openRawResourceFd(Integer.valueOf(mediaId));
-                if( afd == null ) {
-                    return;
-                }
+//            try {
+//                AssetFileDescriptor afd = getResources().openRawResourceFd(Integer.valueOf(mediaId));
+//                if( afd == null ) {
+//                    return;
+//                }
+//
+//                try {
+//                    mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+//
+//                } catch( IllegalStateException e ) {
+//                    mediaPlayer.release();
+//                    initMediaPlayer();
+//                    mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+//                }
+//
+//                afd.close();
+//                initMediaSessionMetadata();
+//
+//            } catch (IOException e) {
+//                return;
+//            }
+//
+//            try {
+//                mediaPlayer.prepare();
+//            } catch (IOException e) {}
+//
+//            //Work with extras here if you want
 
-                try {
-                    mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
 
-                } catch( IllegalStateException e ) {
-                    mediaPlayer.release();
-                    initMediaPlayer();
-                    mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-                }
-
-                afd.close();
-                initMediaSessionMetadata();
-
-            } catch (IOException e) {
-                return;
-            }
-
-            try {
-                mediaPlayer.prepare();
-            } catch (IOException e) {}
-
-            //Work with extras here if you want
         }
 
         @Override
