@@ -2,12 +2,13 @@ package com.arian.musicplayer;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 /**
  * Created by Payami on 04/24/2018.
  */
 
-public class Song  implements Parcelable {
+public class Song  implements Parcelable, Comparable<Song> {
     private long id;
     private String data;
     private String title;
@@ -91,5 +92,11 @@ public class Song  implements Parcelable {
         dest.writeString(album);
         dest.writeLong(albumID);
         dest.writeLong(duration);
+    }
+
+
+    @Override
+    public int compareTo(@NonNull Song o) {
+        return this.getTitle().compareTo(o.getTitle());
     }
 }

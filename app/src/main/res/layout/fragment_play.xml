@@ -2,10 +2,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/fragment_play"
     android:orientation="vertical"
     tools:context="com.arian.musicplayer.PlayFragment">
 
-    <RelativeLayout
+    <FrameLayout
         android:id="@+id/container_lyrics"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -16,15 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <SeekBar
-            android:id="@+id/seekbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
-
-    </RelativeLayout>
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,7 +25,14 @@
         android:layout_weight="3"
         android:orientation="vertical">
 
+        <SeekBar
+            android:id="@+id/seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <RelativeLayout
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -43,19 +43,15 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:layout_margin="5dp"
-                android:text="sdfsdfsdfsdfsdfsd"
                 android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/tv_remaining"
+                android:id="@+id/tv_duration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
-                android:layout_margin="5dp"
-                android:text="adadadasdasd"
                 android:textSize="12sp" />
 
         </RelativeLayout>
@@ -72,12 +68,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="@drawable/ic_shuffle" />
+                android:background="@drawable/ic_shuffle_off" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical">
@@ -87,21 +84,23 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:maxLines="1"
-                    android:text="dsfsfsfsdf"
+                    android:gravity="center"
                     android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/tv_song_singer_play"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="sdfsdfsdfs"
+                    android:maxLines="1"
+                    android:gravity="center"
                     android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tv_song_album_play"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="sfsdfsd"
+                    android:maxLines="1"
+                    android:gravity="center"
                     android:textSize="14sp" />
 
             </LinearLayout>
@@ -112,7 +111,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="@drawable/ic_repeat" />
+                android:background="@drawable/ic_repeat_off" />
 
         </LinearLayout>
 
@@ -135,7 +134,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="40dp"
                 android:layout_marginRight="40dp"
-                android:background="@drawable/icon_play_64" />
+                android:background="@drawable/icon_pause_64" />
 
             <ImageButton
                 android:id="@+id/image_next"

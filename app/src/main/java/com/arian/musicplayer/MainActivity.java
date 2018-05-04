@@ -26,16 +26,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ListFragment.Callbacks, PlayFragment.Callbacks{
 
-    public static final int STATE_PAUSED = 0;
-    public static final int STATE_PLAYING = 1;
-    public static int currentState;
 
     private ViewPager viewPager;
-    private List<Song> songList;
 
+    public static List<Song> songList;
     public static Uri currentSongPath;
+    public static Song currentSong;
+    public static int currentSongIndex;
+    public static boolean isShuffle;
 
     private MediaBrowserCompat mediaBrowser;
     private MediaControllerCompat mediaController;
@@ -48,47 +48,22 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 mediaController = new MediaControllerCompat(MainActivity.this, mediaBrowser.getSessionToken());
-                mediaController.registerCallback(mediaControllerCallback);
                 MediaControllerCompat.setMediaController(MainActivity.this, mediaController);
-//                if(currentSongPath != null)
-//                    MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().playFromUri(currentSongPath,null);
+
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
         }
     };
 
-
-    private MediaControllerCompat.Callback mediaControllerCallback = new MediaControllerCompat.Callback() {
-
-        @Override
-        public void onPlaybackStateChanged(PlaybackStateCompat state) {
-            super.onPlaybackStateChanged(state);
-            if (state == null) {
-                return;
-            }
-            switch (state.getState()) {
-                case PlaybackStateCompat.STATE_PLAYING: {
-                    currentState = STATE_PLAYING;
-                    break;
-                }
-                case PlaybackStateCompat.STATE_PAUSED: {
-                    currentState = STATE_PAUSED;
-                    break;
-                }
-            }
-        }
-    };
-
-
-    public void getSongList() {
+    public List<Song> getSongList() {
 
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
         Cursor musicCursor = musicResolver.query(musicUri, null, null, null, sortOrder);
 
-        songList = new ArrayList<>();
+        List<Song>songs = new ArrayList<>();
 
         if (musicCursor == null) {
             Toast.makeText(this, "No musics on the device", Toast.LENGTH_SHORT).show();
@@ -113,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                     long albumID = musicCursor.getLong(albumIDColumn);
                     long duration = musicCursor.getLong(durationColumn);
 
-                    songList.add(new Song(id,data,title,artist,album,albumID,duration));
+                    songs.add(new Song(id,data,title,artist,album,albumID,duration));
 
                 } while (musicCursor.moveToNext());
             }
@@ -121,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
             musicCursor.close();
         }
 
+        return songs;
     }
 
     @Override
@@ -143,8 +119,7 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        }).start();
 
-        getSongList();
-        Log.d("mytag", String.valueOf(songList.size()));
+        songList = getSongList();
 
         mediaBrowser = new MediaBrowserCompat(MainActivity.this, new ComponentName(MainActivity.this, MediaPlaybackService.class), mediaBrowserConnectionCallback, getIntent().getExtras());
         mediaBrowser.connect();
@@ -161,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
                 return null;
             }
 
+
             @Override
             public int getCount() {
                 return 2;
@@ -175,22 +151,27 @@ public class MainActivity extends AppCompatActivity {
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
 
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (MediaControllerCompat.getMediaController(MainActivity.this) != null) {
-            MediaControllerCompat.getMediaController(MainActivity.this).unregisterCallback(mediaControllerCallback);
-        }
-    }
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if ((MediaControllerCompat.getMediaController(this).getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING)) {
-            MediaControllerCompat.getMediaController(this).getTransportControls().pause();
-        }
         mediaBrowser.disconnect();
+    }
+
+    @Override
+    public void initPlayFragment() {
+        PlayFragment playFragment = (PlayFragment) viewPager.getAdapter().instantiateItem(viewPager,1);
+        playFragment.init();
+    }
+
+    @Override
+    public List<Song> getSongs() {
+        List<Song> songs = getSongList();
+        return songs;
+    }
+
+    @Override
+    public void updateList() {
+        ListFragment listFragment = (ListFragment) viewPager.getAdapter().instantiateItem(viewPager,0);
+        listFragment.updateRecyclerView();
     }
 }

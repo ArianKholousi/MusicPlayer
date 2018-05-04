@@ -1,7 +1,9 @@
 package com.arian.musicplayer;
 
 
+import android.app.Activity;
 import android.content.ContentUris;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -26,7 +28,11 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.arian.musicplayer.MainActivity.currentSong;
+import static com.arian.musicplayer.MainActivity.currentSongIndex;
 import static com.arian.musicplayer.MainActivity.currentSongPath;
+import static com.arian.musicplayer.MainActivity.songList;
+import static com.arian.musicplayer.MediaPlaybackService.mediaPlayer;
 
 
 /**
@@ -38,6 +44,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
     private RecyclerView recyclerView;
     private SongAdapter songAdapter;
     private List<Song> songList;
+    private Callbacks callbacks;
 
 
     public ListFragment() {
@@ -81,6 +88,18 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
         updateRecyclerView();
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof Activity)
+            callbacks = (Callbacks) getActivity();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        callbacks = null;
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -99,9 +118,9 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
     @Override
     public boolean onQueryTextChange(String newText) {
         newText = newText.toLowerCase();
-
+        List<Song> songs = callbacks.getSongs();
         final List<Song> filteredModelList = new ArrayList<>();
-        for (Song model : songList) {
+        for (Song model : songs) {
             final String textTitle = model.getTitle().toLowerCase();
             final String textArtist = model.getArtist().toLowerCase();
             if (textTitle.contains(newText) || textArtist.contains(newText))
@@ -134,14 +153,21 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
 
             Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
             Uri albumArtUri = ContentUris.withAppendedId(sArtworkUri, song.getAlbumID());
-            Picasso.with(getActivity()).load(albumArtUri).fit().into(imageView);
+            Picasso.with(getActivity()).load(albumArtUri).placeholder(R.drawable.icon_music_96).noFade().fit().into(imageView);
         }
 
         @Override
         public void onClick(View v) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+                mediaPlayer.reset();
+            }
+            currentSong = song;
+            currentSongIndex = songList.indexOf(currentSong);
             currentSongPath = Uri.parse(song.getData());
-            MediaControllerCompat.getMediaController(getActivity()).getTransportControls().playFromUri(currentSongPath,null);
+            MediaControllerCompat.getMediaController(getActivity()).getTransportControls().playFromUri(currentSongPath, null);
 
+            callbacks.initPlayFragment();
         }
     }
 
@@ -227,21 +253,24 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
                 }
             }
         }
-
-
     }
 
-
     public void updateRecyclerView() {
-
+//        List<Song> songs = callbacks.getSongs();
         if (songAdapter == null) {
             songAdapter = new SongAdapter(songList);
             recyclerView.setAdapter(songAdapter);
         } else {
-            songAdapter.setSongs(songList);
+//            songAdapter.setSongs(songs);
             songAdapter.notifyDataSetChanged();
         }
-
     }
+
+
+    public interface Callbacks{
+        void initPlayFragment();
+        List<Song> getSongs();
+    }
+
 
 }
