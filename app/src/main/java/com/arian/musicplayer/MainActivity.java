@@ -12,10 +12,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.Toast;
 
 //import com.yanzhenjie.permission.Action;
@@ -26,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements ListFragment.Callbacks, PlayFragment.Callbacks{
+public class MainActivity extends AppCompatActivity implements ListFragment.Callbacks, PlayFragment.Callbacks, AddLyricsDialogFragment.Callbacks{
 
 
     private ViewPager viewPager;
@@ -36,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements ListFragment.Call
     public static Song currentSong;
     public static int currentSongIndex;
     public static boolean isShuffle;
+    public static boolean isRepeated;
 
     private MediaBrowserCompat mediaBrowser;
     private MediaControllerCompat mediaController;
@@ -173,5 +172,20 @@ public class MainActivity extends AppCompatActivity implements ListFragment.Call
     public void updateList() {
         ListFragment listFragment = (ListFragment) viewPager.getAdapter().instantiateItem(viewPager,0);
         listFragment.updateRecyclerView();
+    }
+
+    @Override
+    public void showLyricsFragment() {
+        getSupportFragmentManager().beginTransaction().add(R.id.container_lyrics,LyricsFragment.newInstance()).commit();
+    }
+
+    @Override
+    public void showAddLyricDialogFragment() {
+        AddLyricsDialogFragment.newInstance().show(getSupportFragmentManager(),"add_lyric_dialog_tag");
+    }
+
+    @Override
+    public void showAddLyricsFragment() {
+        getSupportFragmentManager().beginTransaction().add(R.id.container_lyrics,AddLyricsFragment.newInstance()).commit();
     }
 }

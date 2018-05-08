@@ -10,7 +10,6 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,6 +49,7 @@ public class PlayFragment extends Fragment implements View.OnClickListener, Seek
     private ImageButton btnPrevious;
     private ImageButton btnPlayPause;
     private ImageButton btnNext;
+    private ImageButton btnLyrics;
 
     private static Handler handler;
     private static Runnable updateSeekbar;
@@ -114,6 +114,7 @@ public class PlayFragment extends Fragment implements View.OnClickListener, Seek
         btnPrevious = (ImageButton) view.findViewById(R.id.image_previous);
         btnNext = (ImageButton) view.findViewById(R.id.image_next);
         btnPlayPause = (ImageButton) view.findViewById(R.id.image_play);
+        btnLyrics = (ImageButton) view.findViewById(R.id.image_button_lyrics);
 
         seekBar.setOnSeekBarChangeListener(this);
         btnPlayPause.setOnClickListener(this);
@@ -121,6 +122,7 @@ public class PlayFragment extends Fragment implements View.OnClickListener, Seek
         btnShuffle.setOnClickListener(this);
         btnNext.setOnClickListener(this);
         btnPrevious.setOnClickListener(this);
+        btnLyrics.setOnClickListener(this);
 
         init();
 
@@ -150,6 +152,13 @@ public class PlayFragment extends Fragment implements View.OnClickListener, Seek
     public void onClick(View v) {
 
         switch (v.getId()) {
+            case R.id.image_button_lyrics:
+                    if (LyricsPreferences.getStoredList(getActivity(), String.valueOf(currentSong.getId())) == null) {
+                        callbacks.showAddLyricDialogFragment();
+                    }else
+                        callbacks.showLyricsFragment();
+                break;
+
             case R.id.image_play:
 
                 if (mediaPlayer.isPlaying()) {
@@ -243,6 +252,8 @@ public class PlayFragment extends Fragment implements View.OnClickListener, Seek
 
     public interface Callbacks{
         void updateList();
+        void showLyricsFragment();
+        void showAddLyricDialogFragment();
     }
 
 

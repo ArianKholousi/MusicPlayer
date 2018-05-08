@@ -1,0 +1,19 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:background="@android:drawable/screen_background_dark_transparent"
+    tools:context="com.arian.musicplayer.LyricsFragment">
+
+    <TextView
+        android:padding="5dp"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:background="@android:color/transparent"
+        android:id="@+id/tv_showing_lyric"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</FrameLayout>

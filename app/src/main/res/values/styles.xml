@@ -8,6 +8,7 @@
         <item name="colorAccent">@color/red</item>
         <item name="android:background">@color/colorMain</item>
         <item name="android:textColor">@color/fontColor</item>
+        <item name="android:textColorPrimary">@color/fontColor</item>
     </style>
 
 </resources>

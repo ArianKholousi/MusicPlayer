@@ -31,7 +31,6 @@ import java.util.List;
 import static com.arian.musicplayer.MainActivity.currentSong;
 import static com.arian.musicplayer.MainActivity.currentSongIndex;
 import static com.arian.musicplayer.MainActivity.currentSongPath;
-import static com.arian.musicplayer.MainActivity.songList;
 import static com.arian.musicplayer.MediaPlaybackService.mediaPlayer;
 
 
@@ -143,6 +142,12 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
             imageView = (ImageView) itemView.findViewById(R.id.image_song_list);
             tvTitle = (TextView) itemView.findViewById(R.id.tv_song_title_list);
             tvArtist = (TextView) itemView.findViewById(R.id.tv_song_singer_list);
+
+//            int[] attrs = new int[]{R.attr.selectableItemBackground};
+//            TypedArray typedArray = getActivity().obtainStyledAttributes(attrs);
+//            int backgroundResource = typedArray.getResourceId(0, 0);
+//            itemView.setBackgroundResource(backgroundResource);
+//            typedArray.recycle();
             itemView.setOnClickListener(this);
         }
 
@@ -167,6 +172,9 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
             currentSongPath = Uri.parse(song.getData());
             MediaControllerCompat.getMediaController(getActivity()).getTransportControls().playFromUri(currentSongPath, null);
 
+            if (getFragmentManager().findFragmentById(R.id.container_lyrics) != null){
+                getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.container_lyrics)).commit();
+            }
             callbacks.initPlayFragment();
         }
     }
@@ -186,7 +194,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
 
         @Override
         public SongHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(getActivity()).inflate(R.layout.list_item, parent, false);
+            View view = LayoutInflater.from(getActivity()).inflate(R.layout.main_list_item, parent, false);
             return new SongHolder(view);
         }
 

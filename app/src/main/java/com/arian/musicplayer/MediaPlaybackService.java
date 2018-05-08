@@ -35,7 +35,7 @@ import static com.arian.musicplayer.MainActivity.songList;
  */
 
 public class MediaPlaybackService extends MediaBrowserServiceCompat implements AudioManager.OnAudioFocusChangeListener,
-        MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
+        MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
     public static MediaPlayer mediaPlayer;
     private MediaSessionCompat mediaSession;
@@ -91,10 +91,6 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements A
             mediaSession.setActive(false);
         }
 
-        @Override
-        public void onSeekTo(long pos) {
-            super.onSeekTo(pos);
-        }
 
     };
 
@@ -133,12 +129,6 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements A
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaPlayer.setVolume(1.0f, 1.0f);
         mediaPlayer.setOnErrorListener(this);
-    }
-
-
-    @Override
-    public void onPrepared(MediaPlayer mp) {
-
     }
 
     @Override
