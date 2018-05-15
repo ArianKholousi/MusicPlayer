@@ -6,19 +6,17 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.SparseArray;
-import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.arian.musicplayer.MainActivity.currentSong;
 import static com.arian.musicplayer.MediaPlaybackService.mediaPlayer;
@@ -29,16 +27,15 @@ import static com.arian.musicplayer.MediaPlaybackService.mediaPlayer;
  */
 public class AddLyricsFragment extends Fragment implements View.OnClickListener {
 
-//    private List<String> lyrics;
-    private SparseArray<String> sparseArrayString ;
-    private List<EditText> editTextList;
+    private SparseArray<String> map;
+    private List<String> stringList;
 
     private int currentSecond;
 
     private Button btnAdd;
-    private Button btnSubmit;
+    private EditText editText;
     private RecyclerView recyclerView;
-    private EdittextAdapter edittextAdapter;
+    private StringAdapter stringAdapter;
 
 
     public static AddLyricsFragment newInstance() {
@@ -58,9 +55,8 @@ public class AddLyricsFragment extends Fragment implements View.OnClickListener 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        lyrics = new ArrayList<>();
-        sparseArrayString =  new SparseArray<>();
-        editTextList = new ArrayList<>();
+        map =  new SparseArray<>();
+        stringList = new ArrayList<>();
     }
 
     @Override
@@ -69,14 +65,12 @@ public class AddLyricsFragment extends Fragment implements View.OnClickListener 
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_add_lyrics, container, false);
 
+        editText = (EditText) view.findViewById(R.id.et_edittext_add_lyric);
         btnAdd = (Button) view.findViewById(R.id.btn_add);
-        btnSubmit = (Button) view.findViewById(R.id.btn_submit);
         recyclerView = (RecyclerView) view.findViewById(R.id.add_lyrics_recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-
         btnAdd.setOnClickListener(this);
-        btnSubmit.setOnClickListener(this);
 
         updateRecyclerView();
         return view;
@@ -86,67 +80,79 @@ public class AddLyricsFragment extends Fragment implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btn_add:
-                editTextList.add(new EditText(getActivity()));
-                currentSecond = mediaPlayer.getCurrentPosition();
-                updateRecyclerView();
-                break;
-
-            case R.id.btn_submit:
-                sparseArrayString.put(currentSecond,editTextList.get(editTextList.size() -1).getText().toString());
-                LyricsPreferences.setStoredList(getActivity(),String.valueOf(currentSong.getId()),sparseArrayString);
-                Toast.makeText(getActivity(), "Successfully submitted!", Toast.LENGTH_SHORT).show();
+                currentSecond = mediaPlayer.getCurrentPosition()/1000;
+                if (editText.getText().toString().length()!= 0) {
+                    map.put(currentSecond, String.valueOf(editText.getText()));
+                    Log.d("mytag6", String.valueOf(editText.getText()));
+                    stringList.add(String.valueOf(editText.getText()));
+                    editText.getText().clear();
+                    LyricsPreferences.setStoredList(getActivity(),String.valueOf(currentSong.getId()), map);
+                    updateRecyclerView();
+                }
                 break;
         }
     }
 
 
-    private class EdittextHolder extends RecyclerView.ViewHolder {
-        private EditText editText;
 
-        public EdittextHolder(View itemView) {
+    private class StringHolder extends RecyclerView.ViewHolder{
+        private TextView textView;
+        private String string;
+
+        public StringHolder(View itemView) {
             super(itemView);
-            editText = (EditText) itemView.findViewById(R.id.et_lyric);
+            textView = (TextView) itemView.findViewById(R.id.tv_lyric);
         }
 
-        public void bindEdittext(EditText editText){
-            this.editText = editText;
+        public void bindText(String string){
+            this.string = string;
+            textView.setText(string);
         }
 
+//        @Override
+//        public boolean onLongClick(View v) {
+//            Log.d("mytag7", String.valueOf(map.size()));
+//            map.removeAt(map.indexOfValue(string));
+//            stringList.remove(string);
+//            LyricsPreferences.setStoredList(getActivity(),String.valueOf(currentSong.getId()), map);
+//            updateRecyclerView();
+//            return true;
+//        }
     }
 
-    private class EdittextAdapter extends RecyclerView.Adapter<EdittextHolder>{
+    private class StringAdapter extends RecyclerView.Adapter<StringHolder>{
 
-        private List<EditText> editTexts;
+        private List<String> strings;
 
-        public EdittextAdapter(List<EditText> editTexts) {
-            this.editTexts = editTexts;
+        public StringAdapter(List<String> strings) {
+            this.strings = strings;
         }
 
         @Override
-        public EdittextHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public StringHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(getActivity()).inflate(R.layout.adding_lyrics_list_item,parent,false);
-            return new EdittextHolder(view);
+            return new StringHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(EdittextHolder holder, int position) {
-            EditText editText = editTexts.get(position);
-            holder.bindEdittext(editText);
+        public void onBindViewHolder(StringHolder holder, int position) {
+            String string = strings.get(position);
+            holder.bindText(string);
         }
 
         @Override
         public int getItemCount() {
-            return editTexts.size();
+            return strings.size();
         }
     }
 
 
     public void updateRecyclerView(){
-        if (edittextAdapter== null){
-            edittextAdapter = new EdittextAdapter(editTextList);
-            recyclerView.setAdapter(edittextAdapter);
+        if (stringAdapter == null){
+            stringAdapter = new StringAdapter(stringList);
+            recyclerView.setAdapter(stringAdapter);
         }else
-            edittextAdapter.notifyDataSetChanged();
+            stringAdapter.notifyDataSetChanged();
     }
 
 }

@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.media.session.MediaControllerCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,17 +17,22 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.squareup.picasso.Picasso;
 
 
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
+import static com.arian.musicplayer.MainActivity.STATE_PAUSED;
+import static com.arian.musicplayer.MainActivity.STATE_PLAYING;
 import static com.arian.musicplayer.MainActivity.currentSong;
 import static com.arian.musicplayer.MainActivity.currentSongIndex;
-import static com.arian.musicplayer.MainActivity.currentSongPath;
-import static com.arian.musicplayer.MainActivity.isShuffle;
+import static com.arian.musicplayer.MainActivity.currentState;
 import static com.arian.musicplayer.MainActivity.songList;
+import static com.arian.musicplayer.MediaPlaybackService.isRepeated;
+import static com.arian.musicplayer.MediaPlaybackService.isShuffle;
 import static com.arian.musicplayer.MediaPlaybackService.mediaPlayer;
 
 
@@ -38,6 +42,8 @@ import static com.arian.musicplayer.MediaPlaybackService.mediaPlayer;
 public class PlayFragment extends Fragment implements View.OnClickListener, SeekBar.OnSeekBarChangeListener {
 
     public SeekBar seekBar;
+    public ImageButton btnPlayPause;
+
     private ImageView songImage;
     private TextView tvPassedSeconds;
     private TextView tvSongDuration;
@@ -47,7 +53,6 @@ public class PlayFragment extends Fragment implements View.OnClickListener, Seek
     private ImageButton btnShuffle;
     private ImageButton btnRepeat;
     private ImageButton btnPrevious;
-    private ImageButton btnPlayPause;
     private ImageButton btnNext;
     private ImageButton btnLyrics;
 
@@ -77,7 +82,8 @@ public class PlayFragment extends Fragment implements View.OnClickListener, Seek
             public void run() {
                 int currentPosition = mediaPlayer.getCurrentPosition() / 1000;
                 seekBar.setProgress(currentPosition);
-                handler.postDelayed(this, 1000);
+                tvPassedSeconds.setText(formatDuration(mediaPlayer.getCurrentPosition()));
+                handler.postDelayed(this, 500);
             }
         };
 
@@ -94,7 +100,7 @@ public class PlayFragment extends Fragment implements View.OnClickListener, Seek
     @Override
     public void onDetach() {
         super.onDetach();
-        callbacks =null;
+        callbacks = null;
     }
 
     @Override
@@ -131,14 +137,14 @@ public class PlayFragment extends Fragment implements View.OnClickListener, Seek
 
     public void init() {
         if (currentSong != null) {
+            seekBar.setMax((int) (currentSong.getDuration() / 1000));
+            handler.removeCallbacks(updateSeekbar);
+            handler.postDelayed(updateSeekbar, 0);
+
             Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
             Uri albumArtUri = ContentUris.withAppendedId(sArtworkUri, currentSong.getAlbumID());
-            Picasso.with(getActivity()).load(albumArtUri).placeholder(R.drawable.icon_music_480).noFade().fit().into(songImage);
-
-
-            seekBar.setMax((int) (currentSong.getDuration() / 1000));
-//            updateSeekbar.run();
-            handler.postDelayed(updateSeekbar, 0);
+//            Picasso.with(getActivity()).load(albumArtUri).placeholder(R.drawable.icon_music_480).noFade().fit().into(songImage);
+            Glide.with(getActivity()).load(albumArtUri).apply(new RequestOptions().placeholder(R.drawable.icon_music_480)).into(songImage);
 
             tvSongDuration.setText(formatDuration(currentSong.getDuration()));
             tvSongTitle.setText(currentSong.getTitle());
@@ -153,79 +159,88 @@ public class PlayFragment extends Fragment implements View.OnClickListener, Seek
 
         switch (v.getId()) {
             case R.id.image_button_lyrics:
-                    if (LyricsPreferences.getStoredList(getActivity(), String.valueOf(currentSong.getId())) == null) {
-                        callbacks.showAddLyricDialogFragment();
-                    }else
-                        callbacks.showLyricsFragment();
+                if (LyricsPreferences.getStoredList(getActivity(), String.valueOf(currentSong.getId())) == null) {
+                    callbacks.showAddLyricDialogFragment();
+                } else
+                    callbacks.showLyricsFragment();
                 break;
+
 
             case R.id.image_play:
-
-                if (mediaPlayer.isPlaying()) {
-                    btnPlayPause.setBackgroundResource(R.drawable.icon_play_64);
-                    MediaControllerCompat.getMediaController(getActivity()).getTransportControls().pause();
-                } else {
-                    btnPlayPause.setBackgroundResource(R.drawable.icon_pause_64);
-                    MediaControllerCompat.getMediaController(getActivity()).getTransportControls().play();
+                if (currentState == STATE_PAUSED) {
+//                    btnPlayPause.setBackgroundResource(R.drawable.icon_pause_64);
+                    btnPlayPause.setImageResource(R.drawable.icon_pause_64);
+                    getActivity().getSupportMediaController().getTransportControls().play();
+                    currentState = STATE_PLAYING;
+                } else if (currentState == STATE_PLAYING) {
+                    btnPlayPause.setImageResource(R.drawable.icon_play_64);
+//                    btnPlayPause.setBackgroundResource(R.drawable.icon_play_64);
+                    getActivity().getSupportMediaController().getTransportControls().pause();
+                    currentState = STATE_PAUSED;
                 }
                 break;
+
 
             case R.id.image_repeat:
-
-                if (mediaPlayer.isLooping()){
-                    mediaPlayer.setLooping(false);
-                    btnRepeat.setBackgroundResource(R.drawable.ic_repeat_off);
-                }else {
-                    mediaPlayer.setLooping(true);
-                    btnRepeat.setBackgroundResource(R.drawable.ic_repeat_on);
+                if (isRepeated) {
+                    isRepeated = false;
+                    btnRepeat.setImageResource(R.drawable.ic_repeat_off);
+//                    btnRepeat.setBackgroundResource(R.drawable.ic_repeat_off);
+                } else {
+                    isRepeated = true;
+                    btnRepeat.setImageResource(R.drawable.ic_repeat_on);
+//                    btnRepeat.setBackgroundResource(R.drawable.ic_repeat_on);
                 }
                 break;
 
+
             case R.id.image_shuffle:
-                if (isShuffle){
-                    isShuffle=false;
+                if (isShuffle) {
+                    isShuffle = false;
                     Collections.sort(songList);
-                    btnShuffle.setBackgroundResource(R.drawable.ic_shuffle_off);
-                }else {
-                    isShuffle=true;
+                    btnShuffle.setImageResource(R.drawable.ic_shuffle_off);
+//                    btnShuffle.setBackgroundResource(R.drawable.ic_shuffle_off);
+                } else {
+                    isShuffle = true;
                     Collections.shuffle(songList);
-                    btnShuffle.setBackgroundResource(R.drawable.ic_shuffle_on);
+                    btnShuffle.setImageResource(R.drawable.ic_shuffle_on);
+
+//                    btnShuffle.setBackgroundResource(R.drawable.ic_shuffle_on);
                 }
                 callbacks.updateList();
                 break;
 
 
             case R.id.image_next:
-                mediaPlayer.stop();
-                mediaPlayer.reset();
 
-                if (isShuffle){
-                    if (currentSongIndex == songList.size()-1)
+                if (isShuffle) {
+                    currentSongIndex++;
+                    if (currentSongIndex == songList.size()) {
                         currentSongIndex = 0;
-                    else
-                        currentSongIndex++;
+                    }
                     currentSong = songList.get(currentSongIndex);
-                    currentSongPath = Uri.parse(songList.get(currentSongIndex).getData());
                     init();
                 }
-                MediaControllerCompat.getMediaController(getActivity()).getTransportControls().playFromUri(currentSongPath, null);
+                getActivity().getSupportMediaController().getTransportControls().stop();
+                getActivity().getSupportMediaController().getTransportControls().playFromMediaId(currentSong.getData(), null);
                 break;
 
+
             case R.id.image_previous:
-                mediaPlayer.stop();
-                mediaPlayer.reset();
-                if (mediaPlayer.getCurrentPosition()/1000 < 10) {
+
+                if (mediaPlayer.getCurrentPosition() / 1000 < 10) {
                     if (isShuffle) {
-                        if (currentSongIndex==0)
-                            currentSongIndex = songList.size()-1;
-                        else
-                            currentSongIndex--;
+                        currentSongIndex--;
+                        if (currentSongIndex < 0)
+                            currentSongIndex = songList.size() - 1;
+
                         currentSong = songList.get(currentSongIndex);
-                        currentSongPath = Uri.parse(songList.get(currentSongIndex).getData());
+//                        currentSongPath = Uri.parse(currentSong.getData());
                         init();
                     }
                 }
-                MediaControllerCompat.getMediaController(getActivity()).getTransportControls().playFromUri(currentSongPath, null);
+                getActivity().getSupportMediaController().getTransportControls().stop();
+                getActivity().getSupportMediaController().getTransportControls().playFromMediaId(currentSong.getData(), null);
                 break;
         }
     }
@@ -250,10 +265,12 @@ public class PlayFragment extends Fragment implements View.OnClickListener, Seek
                 TimeUnit.MILLISECONDS.toSeconds(duration) % TimeUnit.MINUTES.toSeconds(1));
     }
 
-    public interface Callbacks{
+    public interface Callbacks {
         void updateList();
         void showLyricsFragment();
         void showAddLyricDialogFragment();
+        void setBtnPlayDrawable();
+        void setBtnPauseDrawable();
     }
 
 

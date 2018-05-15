@@ -23,8 +23,9 @@
 
             <ImageButton
                 android:id="@+id/image_button_lyrics"
-                android:background="@drawable/icon_lyrics_48"
+                android:src="@drawable/icon_lyrics_48"
                 android:layout_width="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true"
@@ -86,8 +87,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:layout_marginRight="10dp"
-                android:background="@drawable/ic_shuffle_off" />
+                android:src="@drawable/ic_shuffle_off" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -128,9 +130,10 @@
                 android:id="@+id/image_repeat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="@drawable/ic_repeat_off" />
+                android:src="@drawable/ic_repeat_off" />
 
         </LinearLayout>
 
@@ -144,22 +147,25 @@
             <ImageButton
                 android:id="@+id/image_previous"
                 android:layout_width="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:layout_height="wrap_content"
-                android:background="@drawable/icon_pre_48" />
+                android:src="@drawable/icon_pre_48" />
 
             <ImageButton
                 android:id="@+id/image_play"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:layout_marginRight="40dp"
-                android:background="@drawable/icon_pause_64" />
+                android:src="@drawable/icon_pause_64" />
 
             <ImageButton
                 android:id="@+id/image_next"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/icon_next_48" />
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/icon_next_48" />
 
         </LinearLayout>
 

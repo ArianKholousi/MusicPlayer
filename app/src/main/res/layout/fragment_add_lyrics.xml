@@ -1,43 +1,39 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.arian.musicplayer.AddLyricsFragment">
+    tools:context="com.arian.musicplayer.AddLyricsFragment"
+    android:orientation="vertical">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/add_lyrics_recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/relativeLayout" />
 
-    <RelativeLayout
-        android:layout_alignParentBottom="true"
+    <LinearLayout
+        android:padding="5dp"
+        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/relativeLayout">
+        android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btn_submit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_centerInParent="true"
-            android:layout_margin="10dp"
-            android:text="Submit"
-            android:textColor="#000" />
+        <EditText
+            android:id="@+id/et_edittext_add_lyric"
+            android:maxLines="1"
+            android:layout_weight="20"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content" />
 
         <Button
             android:id="@+id/btn_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_centerInParent="true"
             android:layout_margin="10dp"
+            android:layout_weight="1"
             android:text="Add"
             android:textColor="#000" />
-    </RelativeLayout>
+    </LinearLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/add_lyrics_recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 
-</RelativeLayout>
+</LinearLayout>

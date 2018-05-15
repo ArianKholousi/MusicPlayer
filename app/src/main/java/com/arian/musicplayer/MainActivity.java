@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
@@ -26,18 +27,44 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements ListFragment.Callbacks, PlayFragment.Callbacks, AddLyricsDialogFragment.Callbacks{
 
-
     private ViewPager viewPager;
+
+    public static final int STATE_PAUSED = 0;
+    public static final int STATE_PLAYING = 1;
+    public static int currentState;
 
     public static List<Song> songList;
     public static Uri currentSongPath;
     public static Song currentSong;
     public static int currentSongIndex;
-    public static boolean isShuffle;
-    public static boolean isRepeated;
 
     private MediaBrowserCompat mediaBrowser;
     private MediaControllerCompat mediaController;
+
+
+
+    private MediaControllerCompat.Callback mediaControllerCallback = new MediaControllerCompat.Callback() {
+
+        @Override
+        public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            super.onPlaybackStateChanged(state);
+            if( state == null ) {
+                return;
+            }
+
+            switch( state.getState() ) {
+                case PlaybackStateCompat.STATE_PLAYING: {
+                    currentState = STATE_PLAYING;
+                    break;
+                }
+                case PlaybackStateCompat.STATE_PAUSED: {
+                    currentState = STATE_PAUSED;
+                    break;
+                }
+            }
+        }
+    };
+
 
 
     private MediaBrowserCompat.ConnectionCallback mediaBrowserConnectionCallback = new MediaBrowserCompat.ConnectionCallback() {
@@ -47,8 +74,8 @@ public class MainActivity extends AppCompatActivity implements ListFragment.Call
 
             try {
                 mediaController = new MediaControllerCompat(MainActivity.this, mediaBrowser.getSessionToken());
-                MediaControllerCompat.setMediaController(MainActivity.this, mediaController);
-
+                mediaController.registerCallback(mediaControllerCallback);
+                setSupportMediaController(mediaController);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -120,8 +147,10 @@ public class MainActivity extends AppCompatActivity implements ListFragment.Call
 
         songList = getSongList();
 
-        mediaBrowser = new MediaBrowserCompat(MainActivity.this, new ComponentName(MainActivity.this, MediaPlaybackService.class), mediaBrowserConnectionCallback, getIntent().getExtras());
-        mediaBrowser.connect();
+        if (mediaBrowser == null)
+            mediaBrowser = new MediaBrowserCompat(MainActivity.this, new ComponentName(MainActivity.this, MediaPlaybackService.class), mediaBrowserConnectionCallback, getIntent().getExtras());
+        if (!mediaBrowser.isConnected())
+            mediaBrowser.connect();
 
         viewPager = (ViewPager) findViewById(R.id.main_viewpager);
         viewPager.setAdapter(new FragmentStatePagerAdapter(getSupportFragmentManager()) {
@@ -153,7 +182,10 @@ public class MainActivity extends AppCompatActivity implements ListFragment.Call
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mediaBrowser.disconnect();
+//        if( getSupportMediaController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING ) {
+//            getSupportMediaController().getTransportControls().stop();
+//        }
+//        mediaBrowser.disconnect();
     }
 
     @Override
@@ -185,7 +217,22 @@ public class MainActivity extends AppCompatActivity implements ListFragment.Call
     }
 
     @Override
+    public void setBtnPlayDrawable() {
+        PlayFragment playFragment = (PlayFragment) viewPager.getAdapter().instantiateItem(viewPager,1);
+        playFragment.btnPlayPause.setBackgroundResource(R.drawable.icon_pause_64);
+
+    }
+
+    @Override
+    public void setBtnPauseDrawable() {
+        PlayFragment playFragment = (PlayFragment) viewPager.getAdapter().instantiateItem(viewPager,1);
+        playFragment.btnPlayPause.setBackgroundResource(R.drawable.icon_play_64);
+    }
+
+    @Override
     public void showAddLyricsFragment() {
         getSupportFragmentManager().beginTransaction().add(R.id.container_lyrics,AddLyricsFragment.newInstance()).commit();
     }
+
+
 }

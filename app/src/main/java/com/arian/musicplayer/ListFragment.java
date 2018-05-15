@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,15 +22,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.arian.musicplayer.MainActivity.STATE_PLAYING;
 import static com.arian.musicplayer.MainActivity.currentSong;
 import static com.arian.musicplayer.MainActivity.currentSongIndex;
-import static com.arian.musicplayer.MainActivity.currentSongPath;
-import static com.arian.musicplayer.MediaPlaybackService.mediaPlayer;
+import static com.arian.musicplayer.MainActivity.currentState;
+
 
 
 /**
@@ -142,12 +144,6 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
             imageView = (ImageView) itemView.findViewById(R.id.image_song_list);
             tvTitle = (TextView) itemView.findViewById(R.id.tv_song_title_list);
             tvArtist = (TextView) itemView.findViewById(R.id.tv_song_singer_list);
-
-//            int[] attrs = new int[]{R.attr.selectableItemBackground};
-//            TypedArray typedArray = getActivity().obtainStyledAttributes(attrs);
-//            int backgroundResource = typedArray.getResourceId(0, 0);
-//            itemView.setBackgroundResource(backgroundResource);
-//            typedArray.recycle();
             itemView.setOnClickListener(this);
         }
 
@@ -158,21 +154,21 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
 
             Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
             Uri albumArtUri = ContentUris.withAppendedId(sArtworkUri, song.getAlbumID());
-            Picasso.with(getActivity()).load(albumArtUri).placeholder(R.drawable.icon_music_96).noFade().fit().into(imageView);
+//            Picasso.with(getActivity()).load(albumArtUri).placeholder(R.drawable.icon_music_96).noFade().fit().into(imageView);
+            Glide.with(getActivity()).load(albumArtUri).apply(new RequestOptions().placeholder(R.drawable.icon_music_96)).into(imageView);
+
         }
 
         @Override
         public void onClick(View v) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-                mediaPlayer.reset();
-            }
+            if (currentState == STATE_PLAYING)
+                getActivity().getSupportMediaController().getTransportControls().stop();
+
             currentSong = song;
             currentSongIndex = songList.indexOf(currentSong);
-            currentSongPath = Uri.parse(song.getData());
-            MediaControllerCompat.getMediaController(getActivity()).getTransportControls().playFromUri(currentSongPath, null);
+            getActivity().getSupportMediaController().getTransportControls().playFromMediaId(currentSong.getData(), null);
 
-            if (getFragmentManager().findFragmentById(R.id.container_lyrics) != null){
+            if (getFragmentManager().findFragmentById(R.id.container_lyrics) != null) {
                 getFragmentManager().beginTransaction().remove(getFragmentManager().findFragmentById(R.id.container_lyrics)).commit();
             }
             callbacks.initPlayFragment();
@@ -264,18 +260,16 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
     }
 
     public void updateRecyclerView() {
-//        List<Song> songs = callbacks.getSongs();
         if (songAdapter == null) {
             songAdapter = new SongAdapter(songList);
             recyclerView.setAdapter(songAdapter);
         } else {
-//            songAdapter.setSongs(songs);
             songAdapter.notifyDataSetChanged();
         }
     }
 
 
-    public interface Callbacks{
+    public interface Callbacks {
         void initPlayFragment();
         List<Song> getSongs();
     }

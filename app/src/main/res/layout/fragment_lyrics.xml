@@ -3,12 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
-    android:background="@android:drawable/screen_background_dark_transparent"
+    android:background="#CC000000"
     tools:context="com.arian.musicplayer.LyricsFragment">
 
     <TextView
         android:padding="5dp"
-        android:textSize="18sp"
+        android:textSize="22sp"
         android:gravity="center"
         android:layout_gravity="center"
         android:background="@android:color/transparent"
